@@ -1,36 +1,37 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var leadership = require('../models/Leadership');
+var leadership = require('../models/leadership');
+var Verify = require('./verify');
 
 var leaderRouter = express.Router();
 leaderRouter.use(bodyParser.json());
 
 leaderRouter.route('/')
 
-    .get(function(req,res,next){
-        leadership.find({}, function (err, dish){
+    .get(Verify.verifyOrdinaryUser, function(req,res,next){
+        leadership.find({}, function (err, leader){
 
             if(err) throw err;
-            res.json(dish);
+            res.json(leader);
 
         })
     })
 
-    .post(function(req, res, next){
-        leadership.create(req.body, function (err, dish){
+    .post(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function(req, res, next){
+        leadership.create(req.body, function (err, leader){
 
             if(err) throw err;
-            console.log('Dish create!');
-            var id = dish._id;
+            console.log('leader create!');
+            var id = leader._id;
             res.writeHead(200, {
                 'Content-Type': 'text/plain'
             });
-            res.end('Added the dish with id: ' + id);
+            res.end('Added the leader with id: ' + id);
         })
     })
 
-    .delete(function(req, res, next){
+    .delete(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function(req, res, next){
         leadership.remove({}, function (err, resp){
             if(err) throw err;
             res.json(resp);
@@ -39,25 +40,25 @@ leaderRouter.route('/')
 
 leaderRouter.route('/:leaderId')
 
-    .get(function(req,res,next){
-        Dishes.find({ "name" : req.params.leaderId }, function (err, dish){
+    .get(Verify.verifyOrdinaryUser, function(req,res,next){
+        leadership.findById(req.params.leaderId, function (err, leader){
             if(err) throw err;
-            res.json(dish);
+            res.json(leader);
         })
     })
 
-    .put(function(req, res, next){
+    .put(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function(req, res, next){
         leadership.findByIdAndUpdate(req.params.leaderId, {
             $set: req.body
         }, {
             new: true
-        }, function(err, dish){
+        }, function(err, leader){
             if(err) throw err;
-            res.json(dish);
+            res.json(leader);
         })
     })
 
-    .delete(function(req, res, next){
+    .delete(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function(req, res, next){
         leadership.findByIdAndRemove(req.params.leaderId, function (err,resp){
             if (err) throw err;
             res.json(resp);

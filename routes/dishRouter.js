@@ -36,11 +36,6 @@ dishRouter.route('/')
 
 dishRouter.route('/:dishId')
     .get(Verify.verifyOrdinaryUser, function(req,res,next){
-        /*Dishes.find({ "name" : req.params.dishId }, function (err, dish){
-            if(err) throw err;
-            res.json(dish);
-        })*/
-
         Dishes.findById(req.params.dishId, function (err, dish){
             if(err) throw err;
             res.json(dish);
